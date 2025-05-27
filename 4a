@@ -1,1 +1,58 @@
+n = 4  # number of nodes
+dist = [
+    [0, 0, 0, 0, 0],  # index 0 unused
+    [0, 0, 10, 15, 20],
+    [0, 10, 0, 25, 25],
+    [0, 15, 25, 0, 30],
+    [0, 20, 25, 30, 0]
+]
 
+# memoization and parent tracking
+memo = [[-1] * (1 << (n+1)) for _ in range(n+1)]
+parent = [[-1] * (1 << (n+1)) for _ in range(n+1)]
+
+def fun(i, mask):
+    # Base case: if only 1 and i are visited
+    if mask == (1 << i) | 2:  # 2 means node 1 (1<<1)
+        return dist[1][i]
+
+    if memo[i][mask] != -1:
+        return memo[i][mask]
+
+    res = float('inf')
+
+    # Try visiting each node j
+    for j in range(1, n+1):
+        if (mask & (1 << j)) and j != i and j != 1:
+            temp = fun(j, mask ^ (1 << i)) + dist[j][i]
+            if temp < res:
+                res = temp
+                parent[i][mask] = j
+
+    memo[i][mask] = res
+    return res
+
+# Find minimum cost
+min_cost = float('inf')
+last_node = -1
+final_mask = (1 << (n+1)) - 2  # All nodes visited (excluding dummy 0)
+
+for i in range(2, n+1):  # start from 2, since 1 is the starting node
+    cost = fun(i, final_mask) + dist[i][1]  # return to start
+    if cost < min_cost:
+        min_cost = cost
+        last_node = i
+
+# Reconstruct path
+mask = final_mask
+path = [1]
+current = last_node
+while current != -1:
+    path.append(current)
+    temp = parent[current][mask]
+    mask = mask ^ (1 << current)
+    current = temp
+path.append(1)  # return to start
+
+print("Minimum path cost:", min_cost)
+print("Shortest path:", path)
