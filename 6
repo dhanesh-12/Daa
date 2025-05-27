@@ -1,0 +1,32 @@
+def find_hamiltonian_cycles(graph, start_vertex):
+    n = len(graph)
+    result = []
+
+    def backtrack(path):
+        if len(path) == n:
+            if graph[path[-1]][path[0]] == 1:
+                result.append(path + [path[0]])
+            return
+        for v in range(n):
+            if v not in path and graph[path[-1]][v] == 1:
+                backtrack(path + [v])
+
+    backtrack([start_vertex])
+    return result
+
+# Input
+n = int(input("Enter the number of vertices in the graph: "))
+print("Enter the adjacency matrix (each row separated by space):")
+graph = [list(map(int, input().split())) for _ in range(n)]
+source = int(input(f"Enter the source vertex (0 to {n-1}): "))
+
+# Find Hamiltonian cycles
+cycles = find_hamiltonian_cycles(graph, source)
+
+# Output
+if cycles:
+    print("\nHamiltonian cycle(s) found:")
+    for cycle in cycles:
+        print(" -> ".join(map(str, cycle)))
+else:
+    print("No Hamiltonian cycle found.")
